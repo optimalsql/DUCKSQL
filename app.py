@@ -5,7 +5,9 @@ import os
 app = Flask(__name__)
 
 # Configuration
-DB_PATH = r'C:\Daya\DuckDB\database\my_database.duckdb'
+# Update DB path for Render
+DB_PATH = os.getenv('DB_PATH', 'my_database.duckdb')  
+# On local machine, you can set DB_PATH as environment variable if needed.
 
 # Function to get list of tables
 def get_tables():
@@ -19,6 +21,7 @@ def index():
     query_result = None
     error = None
     query = ""
+    columns = []
 
     if request.method == 'POST':
         query = request.form.get('query')
@@ -32,21 +35,14 @@ def index():
             query_result = None
             columns = []
 
-        return render_template('index.html', 
-                               db_path=DB_PATH, 
-                               tables=get_tables(), 
-                               query_result=query_result, 
-                               columns=columns, 
-                               error=error, 
-                               query=query)
-
     return render_template('index.html', 
                            db_path=DB_PATH, 
                            tables=get_tables(), 
-                           query_result=None, 
-                           columns=[], 
-                           error=None, 
+                           query_result=query_result, 
+                           columns=columns, 
+                           error=error, 
                            query=query)
 
+# Only needed for local testing
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=8080)
